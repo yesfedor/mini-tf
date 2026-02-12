@@ -34,7 +34,24 @@ NodePtr operator+(const NodePtr& a, const NodePtr& b) {
             a->grad = core::ops::add(a->grad, result->grad);
         }
         if (b->requires_grad) {
-            b->grad = core::ops::add(b->grad, result->grad);
+            if (b->value.shape().size() == 2 && result->grad.shape().size() == 2 &&
+                b->value.shape()[0] == 1 && result->grad.shape()[0] > 1 &&
+                b->value.shape()[1] == result->grad.shape()[1]) {
+                size_t M = result->grad.shape()[0];
+                size_t N = result->grad.shape()[1];
+                const float* grad_ptr = result->grad.data();
+                float* b_grad_ptr = b->grad.data();
+                
+                for (size_t j = 0; j < N; ++j) {
+                    float sum = 0.0f;
+                    for (size_t i = 0; i < M; ++i) {
+                        sum += grad_ptr[i * N + j];
+                    }
+                    b_grad_ptr[j] += sum;
+                }
+            } else {
+                b->grad = core::ops::add(b->grad, result->grad);
+            }
         }
     };
     return result;

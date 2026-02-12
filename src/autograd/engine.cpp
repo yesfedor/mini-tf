@@ -10,10 +10,6 @@ void Engine::backward(NodePtr root) {
     if (!root) return;
 
     std::vector<NodePtr> sorted = topological_sort(root);
-
-    if (root->grad.size() == 0) {
-        // Uninitialized gradient handling can be added here if needed
-    }
     root->grad.fill(1.0f);
 
     for (auto it = sorted.rbegin(); it != sorted.rend(); ++it) {

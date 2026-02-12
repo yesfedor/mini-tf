@@ -33,7 +33,6 @@ autograd::NodePtr MSELoss::operator()(autograd::NodePtr prediction, autograd::No
 }
 
 autograd::NodePtr CrossEntropyLoss::operator()(autograd::NodePtr prediction, autograd::NodePtr target) {
-    // Forward pass
     core::Tensor p_val = prediction->value;
     core::Tensor t_val = target->value;
     
@@ -42,7 +41,6 @@ autograd::NodePtr CrossEntropyLoss::operator()(autograd::NodePtr prediction, aut
     
     float loss_sum = 0.0f;
     for (size_t i = 0; i < N; ++i) {
-        // Prevent log(0) with a slightly larger epsilon and clamping
         float p = std::max(p_val[i], 1e-7f);
         loss_sum -= t_val[i] * std::log(p);
     }
@@ -61,7 +59,6 @@ autograd::NodePtr CrossEntropyLoss::operator()(autograd::NodePtr prediction, aut
             auto p_grad = prediction->grad.data();
             
             for (size_t i = 0; i < N; ++i) {
-                // dL/dp = -t/p
                 float p = std::max(p_data[i], 1e-7f);
                 p_grad[i] += grad_loss * scale * (-t_data[i] / p);
             }

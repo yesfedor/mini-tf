@@ -8,6 +8,7 @@ namespace functional {
 
 autograd::NodePtr relu(autograd::NodePtr input);
 autograd::NodePtr sigmoid(autograd::NodePtr input);
+autograd::NodePtr tanh(autograd::NodePtr input);
 autograd::NodePtr softmax(autograd::NodePtr input);
 
 } // namespace functional

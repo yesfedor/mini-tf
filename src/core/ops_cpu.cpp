@@ -8,6 +8,24 @@ namespace core {
 namespace ops {
 
 Tensor add(const Tensor& a, const Tensor& b) {
+    if (a.shape().size() == 2 && b.shape().size() == 2 &&
+        a.shape()[0] != b.shape()[0] && b.shape()[0] == 1 &&
+        a.shape()[1] == b.shape()[1]) {
+        Tensor result(a.shape());
+        size_t M = a.shape()[0];
+        size_t N = a.shape()[1];
+        const float* a_ptr = a.data();
+        const float* b_ptr = b.data();
+        float* r_ptr = result.data();
+        
+        for (size_t i = 0; i < M; ++i) {
+            for (size_t j = 0; j < N; ++j) {
+                r_ptr[i * N + j] = a_ptr[i * N + j] + b_ptr[j];
+            }
+        }
+        return result;
+    }
+    
     Tensor result(a.shape());
     for (size_t i = 0; i < a.size(); ++i) {
         result[i] = a[i] + b[i];
@@ -121,6 +139,14 @@ Tensor sigmoid(const Tensor& a) {
     Tensor result(a.shape());
     for (size_t i = 0; i < a.size(); ++i) {
         result[i] = 1.0f / (1.0f + std::exp(-a[i]));
+    }
+    return result;
+}
+
+Tensor tanh(const Tensor& a) {
+    Tensor result(a.shape());
+    for (size_t i = 0; i < a.size(); ++i) {
+        result[i] = std::tanh(a[i]);
     }
     return result;
 }

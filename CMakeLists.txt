@@ -32,3 +32,8 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/mnist_train.cpp")
     add_executable(mnist_train examples/mnist_train.cpp)
     target_link_libraries(mnist_train PRIVATE mini_tf)
 endif()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/xor_train.cpp")
+    add_executable(xor_train examples/xor_train.cpp)
+    target_link_libraries(xor_train PRIVATE mini_tf)
+endif()

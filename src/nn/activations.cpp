@@ -50,6 +50,28 @@ autograd::NodePtr sigmoid(autograd::NodePtr input) {
     return result;
 }
 
+autograd::NodePtr tanh(autograd::NodePtr input) {
+    auto result = autograd::Node::create(core::ops::tanh(input->value), 
+                                         input->requires_grad, 
+                                         "Tanh");
+    result->parents = {input};
+
+    result->backward_fn = [result, input]() {
+        if (input->requires_grad) {
+            const float* y_data = result->value.data();
+            const float* grad_out = result->grad.data();
+            float* grad_in = input->grad.data();
+            size_t size = input->value.size();
+
+            for (size_t i = 0; i < size; ++i) {
+                float t = y_data[i];
+                grad_in[i] += grad_out[i] * (1.0f - t * t);
+            }
+        }
+    };
+    return result;
+}
+
 autograd::NodePtr softmax(autograd::NodePtr input) {
     size_t rows = input->value.shape()[0];
     size_t cols = input->value.shape()[1];
