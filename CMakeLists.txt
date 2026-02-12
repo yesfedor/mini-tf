@@ -42,3 +42,8 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/xor_load.cpp")
     add_executable(xor_load examples/xor_load.cpp)
     target_link_libraries(xor_load PRIVATE mini_tf)
 endif()
+
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/model_load.cpp")
+    add_executable(model_load examples/model_load.cpp)
+    target_link_libraries(model_load PRIVATE mini_tf)
+endif()

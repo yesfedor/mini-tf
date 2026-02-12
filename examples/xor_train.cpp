@@ -96,6 +96,24 @@ void train_xor() {
     } else {
         std::cerr << "Failed to save fc2" << std::endl;
     }
+    
+    mtf::nn::ModelMetadata metadata;
+    metadata.model_name = "4-bit XOR Parity Check";
+    metadata.description = "Neural network for 4-bit XOR parity classification";
+    metadata.input_dim = 4;
+    metadata.input_description = "4-bit input (4 numbers 0 or 1, separated by spaces)";
+    metadata.input_example = "1 0 1 1";
+    metadata.input_format = "4 binary values (0 or 1)";
+    metadata.output_dim = 1;
+    metadata.output_description = "Parity prediction (0 for even, 1 for odd)";
+    metadata.layer_paths = {"models/xor_fc1", "models/xor_fc2"};
+    metadata.activations = {"tanh", "sigmoid"};
+    
+    if (metadata.save("models/xor_metadata.txt")) {
+        std::cout << "Saved model metadata to models/xor_metadata.txt" << std::endl;
+    } else {
+        std::cerr << "Failed to save metadata" << std::endl;
+    }
 }
 
 int main() {

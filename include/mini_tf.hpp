@@ -10,6 +10,7 @@
 #include "nn/layers.hpp"
 #include "nn/activations.hpp"
 #include "nn/loss.hpp"
+#include "nn/model_metadata.hpp"
 
 #include "optim/optimizer.hpp"
 #include "optim/sgd.hpp"
