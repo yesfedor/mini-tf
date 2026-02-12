@@ -1,13 +1,24 @@
 #include "nn/layers.hpp"
 #include "core/ops_cpu.hpp"
 #include <cmath>
+#include <fstream>
+#include <sstream>
 
 namespace mtf {
 namespace nn {
 
 Dense::Dense(size_t input_dim, size_t output_dim, bool use_bias) 
-    : use_bias_(use_bias) {
+    : use_bias_(use_bias), input_dim_(input_dim), output_dim_(output_dim) {
     init_parameters(input_dim, output_dim);
+}
+
+Dense::Dense(size_t input_dim, size_t output_dim, bool use_bias,
+             const core::Tensor& weight, const core::Tensor& bias)
+    : use_bias_(use_bias), input_dim_(input_dim), output_dim_(output_dim) {
+    weight_ = autograd::Node::create(weight, true, "Dense_W");
+    if (use_bias_) {
+        bias_ = autograd::Node::create(bias, true, "Dense_b");
+    }
 }
 
 void Dense::init_parameters(size_t input_dim, size_t output_dim) {
@@ -38,6 +49,66 @@ std::vector<autograd::NodePtr> Dense::parameters() const {
         params.push_back(bias_);
     }
     return params;
+}
+
+bool Dense::save(const std::string& filepath) const {
+    std::string weight_path = filepath + "_weight.bin";
+    std::string bias_path = filepath + "_bias.bin";
+    std::string meta_path = filepath + "_meta.txt";
+    
+    if (!weight_->value.save(weight_path)) {
+        return false;
+    }
+    
+    if (use_bias_ && !bias_->value.save(bias_path)) {
+        return false;
+    }
+    
+    std::ofstream meta(meta_path);
+    if (!meta.is_open()) {
+        return false;
+    }
+    meta << input_dim_ << " " << output_dim_ << " " << (use_bias_ ? 1 : 0) << std::endl;
+    meta.close();
+    
+    return true;
+}
+
+Dense Dense::load(const std::string& filepath) {
+    std::string weight_path = filepath + "_weight.bin";
+    std::string bias_path = filepath + "_bias.bin";
+    std::string meta_path = filepath + "_meta.txt";
+    
+    std::ifstream meta(meta_path);
+    if (!meta.is_open()) {
+        std::cerr << "Error: Cannot open meta file: " << meta_path << std::endl;
+        return Dense(1, 1);
+    }
+    
+    size_t input_dim, output_dim;
+    int use_bias;
+    meta >> input_dim >> output_dim >> use_bias;
+    meta.close();
+    
+    auto weight = core::Tensor::load(weight_path);
+    if (weight.size() == 0) {
+        std::cerr << "Error: Cannot load weight from: " << weight_path << std::endl;
+        return Dense(1, 1);
+    }
+    
+    core::Tensor bias;
+    if (use_bias) {
+        bias = core::Tensor::load(bias_path);
+        if (bias.size() == 0) {
+            std::cerr << "Error: Cannot load bias from: " << bias_path << std::endl;
+            return Dense(1, 1);
+        }
+    } else {
+        bias = core::Tensor({1, output_dim});
+        bias.fill(0.0f);
+    }
+    
+    return Dense(input_dim, output_dim, use_bias != 0, weight, bias);
 }
 
 } // namespace nn

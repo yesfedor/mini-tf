@@ -45,6 +45,9 @@ public:
     void randn(float mean = 0.0f, float std = 1.0f);
     void print() const;
     
+    bool save(const std::string& filepath) const;
+    static Tensor load(const std::string& filepath);
+    
     static Strides compute_strides(const Shape& shape);
 
 private:

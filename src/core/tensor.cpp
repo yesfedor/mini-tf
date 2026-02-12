@@ -5,6 +5,7 @@
 #include <random>
 #include <iostream>
 #include <cstring>
+#include <fstream>
 
 namespace mtf {
 namespace core {
@@ -183,6 +184,46 @@ void Tensor::print() const {
     } else {
         std::cout << "[ ... " << size_ << " elements ... ]" << std::endl;
     }
+}
+
+bool Tensor::save(const std::string& filepath) const {
+    std::ofstream file(filepath, std::ios::binary);
+    if (!file.is_open()) {
+        std::cerr << "Error: Cannot open file for writing: " << filepath << std::endl;
+        return false;
+    }
+    
+    size_t shape_size = shape_.size();
+    file.write(reinterpret_cast<const char*>(&shape_size), sizeof(size_t));
+    file.write(reinterpret_cast<const char*>(shape_.data()), shape_size * sizeof(size_t));
+    file.write(reinterpret_cast<const char*>(&size_), sizeof(size_t));
+    file.write(reinterpret_cast<const char*>(data_), size_ * sizeof(float));
+    
+    file.close();
+    return true;
+}
+
+Tensor Tensor::load(const std::string& filepath) {
+    std::ifstream file(filepath, std::ios::binary);
+    if (!file.is_open()) {
+        std::cerr << "Error: Cannot open file for reading: " << filepath << std::endl;
+        return Tensor();
+    }
+    
+    size_t shape_size;
+    file.read(reinterpret_cast<char*>(&shape_size), sizeof(size_t));
+    
+    Shape shape(shape_size);
+    file.read(reinterpret_cast<char*>(shape.data()), shape_size * sizeof(size_t));
+    
+    size_t size;
+    file.read(reinterpret_cast<char*>(&size), sizeof(size_t));
+    
+    Tensor result(shape);
+    file.read(reinterpret_cast<char*>(result.data_), size * sizeof(float));
+    
+    file.close();
+    return result;
 }
 
 } // namespace core

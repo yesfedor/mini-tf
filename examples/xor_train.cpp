@@ -83,6 +83,19 @@ void train_xor() {
                   << " | " << sum << " | " << static_cast<int>(y_raw[i]) 
                   << " | " << p << " (" << (p > 0.5f ? "1" : "0") << ")" << std::endl;
     }
+    
+    std::cout << "\nSaving model..." << std::endl;
+    if (fc1.save("models/xor_fc1")) {
+        std::cout << "Saved fc1 to models/xor_fc1" << std::endl;
+    } else {
+        std::cerr << "Failed to save fc1" << std::endl;
+    }
+    
+    if (fc2.save("models/xor_fc2")) {
+        std::cout << "Saved fc2 to models/xor_fc2" << std::endl;
+    } else {
+        std::cerr << "Failed to save fc2" << std::endl;
+    }
 }
 
 int main() {
