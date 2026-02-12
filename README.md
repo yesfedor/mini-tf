@@ -54,6 +54,12 @@ make
 
 ```
 
+OR
+
+```
+cmake --build build --target mnist_train
+```
+
 ---
 
 ## 🧪 Тестирование
